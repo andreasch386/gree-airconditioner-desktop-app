@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.gree.controller.MainController"
+      alignment="CENTER" spacing="20" prefWidth="600" prefHeight="400">
+
+    <Label fx:id="messageLabel" text="Click the button!" />
+    <Button text="Say Hello" onAction="#onButtonClick" />
+</VBox>
