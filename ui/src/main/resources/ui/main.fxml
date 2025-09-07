@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.*?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.gree.controller.MainController"
-      alignment="CENTER" spacing="20" prefWidth="600" prefHeight="400">
-
-    <Label fx:id="messageLabel" text="Click the button!" />
-    <Button text="Say Hello" onAction="#onButtonClick" />
-</VBox>
+<StackPane fx:controller="com.gree.controller.MainController"
+           prefHeight="800" prefWidth="600"
+           xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
+            <content>
+                <VBox fx:id="rootContainer" alignment="TOP_CENTER" spacing="20"/>
+            </content>
+        </ScrollPane>
+        <ProgressIndicator fx:id="loading"
+                           progress="0.0"
+                           maxWidth="120" maxHeight="120"
+                           StackPane.alignment="CENTER"/>
+    </children>
+</StackPane>
