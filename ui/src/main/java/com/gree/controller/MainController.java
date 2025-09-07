@@ -3,7 +3,6 @@ package com.gree.controller;
 import com.gree.airconditioner.controller.GreeDeviceController;
 import com.gree.airconditioner.dto.api.ApiResponse;
 import com.gree.airconditioner.dto.api.DeviceInfoDto;
-import com.gree.service.HelloService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -17,11 +16,9 @@ import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
-    private final HelloService helloService;
     private final GreeDeviceController greeDeviceController;
 
-    public MainController(HelloService helloService, GreeDeviceController greeDeviceController) {
-        this.helloService = helloService;
+    public MainController(GreeDeviceController greeDeviceController) {
         this.greeDeviceController = greeDeviceController;
     }
 
