@@ -31,31 +31,60 @@ public class AcUnitController {
     @Setter
     private String ip;
 
-    @FXML private Label unitName;
-    @FXML private Button renameButton;
-    @FXML private Label tempLabel;
-    @FXML private Button decreaseTempButton;
-    @FXML private Button increaseTempButton;
-    @FXML private CheckBox featureA;
-    @FXML private CheckBox featureB;
-    @FXML private RadioButton option1;
-    @FXML private RadioButton option2;
-    @FXML private RadioButton option3;
-    @FXML private RadioButton option4;
-    @FXML private Button powerButton;
+    @FXML
+    private Label unitName;
+    @FXML
+    private Button renameButton;
+    @FXML
+    private Label tempLabel;
+    @FXML
+    private Button decreaseTempButton;
+    @FXML
+    private Button increaseTempButton;
+    @FXML
+    private CheckBox healthMode;
+
+    @FXML
+    private RadioButton modeAuto;
+    @FXML
+    private RadioButton modeCool;
+    @FXML
+    private RadioButton modeHeat;
+    @FXML
+    private RadioButton modeDry;
+    @FXML
+    private RadioButton modeFanOnly;
+
+    @FXML
+    private RadioButton fanAuto;
+    @FXML
+    private RadioButton fanLow;
+    @FXML
+    private RadioButton fanMedium;
+    @FXML
+    private RadioButton fanHigh;
+    @FXML
+    private Button powerButton;
 
     private ToggleGroup modeGroup;
+    private ToggleGroup fanGroup;
 
     @FXML
     private void initialize() throws IOException {
         config = new Config();
 
-        // Make the 4 radios mutually exclusive
         modeGroup = new ToggleGroup();
-        option1.setToggleGroup(modeGroup);
-        option2.setToggleGroup(modeGroup);
-        option3.setToggleGroup(modeGroup);
-        option4.setToggleGroup(modeGroup);
+        modeAuto.setToggleGroup(modeGroup);
+        modeCool.setToggleGroup(modeGroup);
+        modeHeat.setToggleGroup(modeGroup);
+        modeDry.setToggleGroup(modeGroup);
+        modeFanOnly.setToggleGroup(modeGroup);
+
+        fanGroup = new ToggleGroup();
+        fanAuto.setToggleGroup(fanGroup);
+        fanLow.setToggleGroup(fanGroup);
+        fanMedium.setToggleGroup(fanGroup);
+        fanHigh.setToggleGroup(fanGroup);
     }
 
     public void setUnitName(String title) {
@@ -114,6 +143,7 @@ public class AcUnitController {
 
     /**
      * Map the device info to the UI controls.
+     *
      * @param device {@link DeviceInfoDto}
      */
     public void mapBasicInfoToUnit(DeviceInfoDto device) {
@@ -129,7 +159,48 @@ public class AcUnitController {
     }
 
     public void mapStatusInfoToUnit(DeviceStatusDto deviceStatus) {
+        if (deviceStatus == null) return;
         this.tempLabel.setText(deviceStatus.getTemperature().toString());
+        this.powerButton.setText(deviceStatus.isPower() ? "On" : "Off");
+        this.healthMode.setSelected(deviceStatus.isHealth());
+
+        if (deviceStatus.getMode() != null) {
+            switch (deviceStatus.getMode().toLowerCase()) {
+                case "auto":
+                    modeAuto.setSelected(true);
+                    break;
+                case "cool":
+                    modeCool.setSelected(true);
+                    break;
+                case "heat":
+                    modeHeat.setSelected(true);
+                    break;
+                case "dry":
+                    modeDry.setSelected(true);
+                    break;
+                case "fanonly":
+                    modeFanOnly.setSelected(true);
+                    break;
+            }
+        }
+
+        if (deviceStatus.getFanSpeed() != null) {
+            switch (deviceStatus.getFanSpeed().toLowerCase()) {
+                case "auto":
+                    fanAuto.setSelected(true);
+                    break;
+                case "low":
+                    fanLow.setSelected(true);
+                    break;
+                case "medium":
+                    fanMedium.setSelected(true);
+                    break;
+                case "high":
+                    fanHigh.setSelected(true);
+                    break;
+            }
+        }
+
 
     }
 }

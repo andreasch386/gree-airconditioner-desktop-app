@@ -24,6 +24,7 @@ public class GetDevicesAssist {
     /**
      * This method will discover all devices in the local network. It needs to be run everytime the application starts.
      * After the app starts, the {@link #getAllDiscoveredDevices()} method can be used to get the list of devices.
+     *
      * @return List of discovered devices
      */
     public List<DeviceInfoDto> discoverDevicesInLan() {
@@ -51,6 +52,7 @@ public class GetDevicesAssist {
 
     /**
      * Get all discovered devices. This method will return an empty list if no devices are discovered.
+     *
      * @return List of discovered devices
      */
     public List<DeviceInfoDto> getAllDiscoveredDevices() {
@@ -66,7 +68,7 @@ public class GetDevicesAssist {
 
         List<DeviceInfoDto> devices = response.getBody().getData();
         if (devices.isEmpty()) {
-           return Collections.emptyList();
+            return Collections.emptyList();
         }
 
         return devices;
@@ -74,54 +76,20 @@ public class GetDevicesAssist {
 
     /**
      * get device status by ip address
-     * @param ipAddress
+     *
+     * @param device
      * @return
      */
-    public DeviceStatusDto getDeviceStatus(String ipAddress) {
-        try {
-            ResponseEntity<ApiResponse<DeviceStatusDto>> apiResponseResponseEntity = greeDeviceController.getDeviceStatus(ipAddress).get();
-
-            if (!apiResponseResponseEntity.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Failed to get device status " + ipAddress);
-            }
-            return apiResponseResponseEntity.getBody().getData();
-
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-
+    public CompletableFuture<ResponseEntity<ApiResponse<DeviceStatusDto>>> getDeviceStatus(DeviceInfoDto device) {
+        return greeDeviceController.getDeviceStatus(device.getIpAddress());
     }
 
-    public void connect(DeviceInfoDto device) {
-        try {
-            ResponseEntity<ApiResponse<String>> apiResponseResponseEntity = greeDeviceController.connectToDevice(device.getId()).get();
-
-            if (!apiResponseResponseEntity.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Failed to connect to device");
-            }
-            System.out.println("Connected to device " + device.getIpAddress());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+    public CompletableFuture<ResponseEntity<ApiResponse<String>>> connect(DeviceInfoDto device) {
+        return greeDeviceController.connectToDevice(device.getIpAddress());
     }
 
 
-    public void disconnect(DeviceInfoDto device) {
-        try {
-            ResponseEntity<ApiResponse<String>> apiResponseResponseEntity = greeDeviceController.disconnectFromDevice(device.getId()).get();
-
-            if (!apiResponseResponseEntity.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Failed to discconnect from device" + device.getIpAddress());
-            }
-            System.out.println("Disconnected from device" + device.getIpAddress());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+    public CompletableFuture<ResponseEntity<ApiResponse<String>>> disconnect(DeviceInfoDto device) {
+        return greeDeviceController.disconnectFromDevice(device.getId());
     }
 }
