@@ -1,0 +1,12 @@
+com\gree\airconditioner\ValidationTest.class
+com\gree\airconditioner\controller\GreeDeviceControllerTest.class
+com\gree\airconditioner\ErrorHandlingTest.class
+com\gree\airconditioner\ServiceIntegrationTest.class
+com\gree\airconditioner\GreeAirconditionerApplicationTest.class
+com\gree\airconditioner\PerformanceTest.class
+com\gree\airconditioner\ConfigurationTest.class
+com\gree\airconditioner\dto\api\DeviceControlDtoTest.class
+com\gree\airconditioner\dto\api\DeviceInfoDtoTest.class
+com\gree\airconditioner\exceptions\HvacDeviceExceptionTest.class
+com\gree\airconditioner\dto\api\DeviceStatusDtoTest.class
+com\gree\airconditioner\dto\api\ApiResponseTest.class

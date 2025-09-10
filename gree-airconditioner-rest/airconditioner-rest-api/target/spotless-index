@@ -1,0 +1,21 @@
+fQ2A/Cby5WG7Y3YAMf1OYS/oO+fnzQuqs6AxsjDVOj8=
+src\main\java\com\gree\airconditioner\controller\GreeDeviceController.java 2025-09-06T14:25:18.172210500Z
+src\main\java\com\gree\airconditioner\dto\api\ApiResponse.java 2025-09-06T14:25:18.172210500Z
+src\main\java\com\gree\airconditioner\dto\api\DeviceControlDto.java 2025-09-06T14:25:18.172210500Z
+src\main\java\com\gree\airconditioner\dto\api\DeviceInfoDto.java 2025-09-06T14:25:18.172210500Z
+src\main\java\com\gree\airconditioner\dto\api\DeviceStatusDto.java 2025-09-06T14:25:18.172210500Z
+src\main\java\com\gree\airconditioner\exceptions\HvacDeviceException.java 2025-09-06T14:25:18.172210500Z
+src\main\java\com\gree\airconditioner\GreeAirconditionerApplication.java 2025-09-06T14:25:18.171208900Z
+src\main\java\com\gree\airconditioner\service\HvacDeviceService.java 2025-09-06T14:25:18.172210500Z
+src\test\java\com\gree\airconditioner\ConfigurationTest.java 2025-09-06T14:25:18.173713Z
+src\test\java\com\gree\airconditioner\controller\GreeDeviceControllerTest.java 2025-09-06T14:25:18.175716300Z
+src\test\java\com\gree\airconditioner\dto\api\ApiResponseTest.java 2025-09-06T14:25:18.175716300Z
+src\test\java\com\gree\airconditioner\dto\api\DeviceControlDtoTest.java 2025-09-06T14:25:18.175716300Z
+src\test\java\com\gree\airconditioner\dto\api\DeviceInfoDtoTest.java 2025-09-06T14:25:18.176716300Z
+src\test\java\com\gree\airconditioner\dto\api\DeviceStatusDtoTest.java 2025-09-06T14:25:18.176716300Z
+src\test\java\com\gree\airconditioner\ErrorHandlingTest.java 2025-09-06T14:25:18.174716Z
+src\test\java\com\gree\airconditioner\exceptions\HvacDeviceExceptionTest.java 2025-09-06T14:25:18.176716300Z
+src\test\java\com\gree\airconditioner\GreeAirconditionerApplicationTest.java 2025-09-06T14:25:18.174716Z
+src\test\java\com\gree\airconditioner\PerformanceTest.java 2025-09-06T14:25:18.174716Z
+src\test\java\com\gree\airconditioner\ServiceIntegrationTest.java 2025-09-06T14:25:18.174716Z
+src\test\java\com\gree\airconditioner\ValidationTest.java 2025-09-06T14:25:18.174716Z

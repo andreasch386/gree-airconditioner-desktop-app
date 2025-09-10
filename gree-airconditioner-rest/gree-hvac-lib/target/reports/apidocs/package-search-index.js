@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.gree.hvac"},{"l":"com.gree.hvac.client"},{"l":"com.gree.hvac.discovery"},{"l":"com.gree.hvac.dto"},{"l":"com.gree.hvac.exceptions"},{"l":"com.gree.hvac.network"},{"l":"com.gree.hvac.protocol"}];updateSearchResults();

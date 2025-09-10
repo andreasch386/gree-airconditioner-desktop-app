@@ -1,0 +1,7 @@
+com.gree.hvac
+com.gree.hvac.client
+com.gree.hvac.discovery
+com.gree.hvac.dto
+com.gree.hvac.exceptions
+com.gree.hvac.network
+com.gree.hvac.protocol

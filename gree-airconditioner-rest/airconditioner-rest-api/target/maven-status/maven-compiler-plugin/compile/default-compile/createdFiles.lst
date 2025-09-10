@@ -1,0 +1,8 @@
+com\gree\airconditioner\service\HvacDeviceService.class
+com\gree\airconditioner\GreeAirconditionerApplication.class
+com\gree\airconditioner\exceptions\HvacDeviceException.class
+com\gree\airconditioner\controller\GreeDeviceController.class
+com\gree\airconditioner\dto\api\DeviceStatusDto.class
+com\gree\airconditioner\dto\api\DeviceInfoDto.class
+com\gree\airconditioner\dto\api\ApiResponse.class
+com\gree\airconditioner\dto\api\DeviceControlDto.class
