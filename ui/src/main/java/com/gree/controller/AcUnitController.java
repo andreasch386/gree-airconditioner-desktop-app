@@ -16,9 +16,11 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+@Slf4j
 public class AcUnitController {
 
     Config config;
@@ -60,7 +62,11 @@ public class AcUnitController {
     @FXML
     private RadioButton fanLow;
     @FXML
+    private RadioButton fanMediumLow;
+    @FXML
     private RadioButton fanMedium;
+    @FXML
+    private RadioButton fanMediumHigh;
     @FXML
     private RadioButton fanHigh;
     @FXML
@@ -83,7 +89,9 @@ public class AcUnitController {
         fanGroup = new ToggleGroup();
         fanAuto.setToggleGroup(fanGroup);
         fanLow.setToggleGroup(fanGroup);
+        fanMediumLow.setToggleGroup(fanGroup);
         fanMedium.setToggleGroup(fanGroup);
+        fanMediumHigh.setToggleGroup(fanGroup);
         fanHigh.setToggleGroup(fanGroup);
     }
 
@@ -159,48 +167,87 @@ public class AcUnitController {
     }
 
     public void mapStatusInfoToUnit(DeviceStatusDto deviceStatus) {
-        if (deviceStatus == null) return;
-        this.tempLabel.setText(deviceStatus.getTemperature().toString());
-        this.powerButton.setText(deviceStatus.isPower() ? "On" : "Off");
-        this.healthMode.setSelected(deviceStatus.isHealth());
-
-        if (deviceStatus.getMode() != null) {
-            switch (deviceStatus.getMode().toLowerCase()) {
-                case "auto":
-                    modeAuto.setSelected(true);
-                    break;
-                case "cool":
-                    modeCool.setSelected(true);
-                    break;
-                case "heat":
-                    modeHeat.setSelected(true);
-                    break;
-                case "dry":
-                    modeDry.setSelected(true);
-                    break;
-                case "fanonly":
-                    modeFanOnly.setSelected(true);
-                    break;
-            }
+        if (deviceStatus == null) {
+            log.warn("Received null device status");
+            return;
         }
 
-        if (deviceStatus.getFanSpeed() != null) {
-            switch (deviceStatus.getFanSpeed().toLowerCase()) {
-                case "auto":
-                    fanAuto.setSelected(true);
-                    break;
-                case "low":
-                    fanLow.setSelected(true);
-                    break;
-                case "medium":
-                    fanMedium.setSelected(true);
-                    break;
-                case "high":
-                    fanHigh.setSelected(true);
-                    break;
+        try {
+            log.debug("Updating UI with status: Power={}, Temp={}, Mode={}",
+                    deviceStatus.isPower(), deviceStatus.getTemperature(), deviceStatus.getMode());
+
+            // Update temperature
+            if (deviceStatus.getTemperature() != null) {
+                this.tempLabel.setText(deviceStatus.getTemperature().toString() + "°C");
             }
+
+            // Update power button
+
+            this.powerButton.setText(deviceStatus.isPower() ? "ON" : "OFF");
+            // Optional: Change button style based on power state
+            if (deviceStatus.isPower()) {
+                this.powerButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+            } else {
+                this.powerButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
+            }
+
+
+            // Update health mode
+            this.healthMode.setSelected(deviceStatus.isHealth());
+
+            // Update mode selection
+            if (deviceStatus.getMode() != null) {
+                // Clear all selections first
+                modeGroup.selectToggle(null);
+
+                switch (deviceStatus.getMode().toLowerCase()) {
+                    case "auto":
+                        modeAuto.setSelected(true);
+                        break;
+                    case "cool":
+                        modeCool.setSelected(true);
+                        break;
+                    case "heat":
+                        modeHeat.setSelected(true);
+                        break;
+                    case "dry":
+                        modeDry.setSelected(true);
+                        break;
+                    case "fanonly":
+                        modeFanOnly.setSelected(true);
+                        break;
+                    default:
+                        log.warn("Unknown mode: {}", deviceStatus.getMode());
+                }
+            }
+
+            // Update fan speed selection
+            if (deviceStatus.getFanSpeed() != null) {
+                // Clear all selections first
+                fanGroup.selectToggle(null);
+
+                switch (deviceStatus.getFanSpeed().toLowerCase()) {
+                    case "auto":
+                        fanAuto.setSelected(true);
+                        break;
+                    case "low":
+                        fanLow.setSelected(true);
+                        break;
+                    case "medium":
+                        fanMedium.setSelected(true);
+                        break;
+                    case "high":
+                        fanHigh.setSelected(true);
+                        break;
+                    default:
+                        log.warn("Unknown fan speed: {}", deviceStatus.getFanSpeed());
+                }
+            }
+
+            log.debug("UI update completed successfully");
+
+        } catch (Exception e) {
+            log.error("Error updating UI with device status: {}", e.getMessage());
         }
-
-
     }
 }

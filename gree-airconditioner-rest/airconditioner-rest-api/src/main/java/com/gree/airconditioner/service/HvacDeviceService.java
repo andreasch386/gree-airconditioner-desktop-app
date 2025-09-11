@@ -70,7 +70,10 @@ public class HvacDeviceService {
                 try {
                   existingClient.shutdown();
                 } catch (Exception e) {
-                  log.warn("Error shutting down stale client for device {}: {}", deviceId, e.getMessage());
+                  log.warn(
+                      "Error shutting down stale client for device {}: {}",
+                      deviceId,
+                      e.getMessage());
                 }
               }
             }
@@ -88,7 +91,9 @@ public class HvacDeviceService {
                 GreeHvac.createClient(
                     new HvacClientOptions(deviceInfo.getIpAddress())
                         .setAutoConnect(false)
-                        .setPoll(false) // Disable auto-polling to prevent conflicts with manual status requests
+                        .setPoll(
+                            false) // Disable auto-polling to prevent conflicts with manual status
+                        // requests
                         .setPollingTimeout(10000) // Increase timeout to 10 seconds
                         .setConnectTimeout(8000)); // Increase connect timeout
 
@@ -110,7 +115,7 @@ public class HvacDeviceService {
 
             client.onError(
                 error -> log.error("Error from device {}: {}", deviceId, error.getMessage()));
-                
+
             client.onNoResponse(
                 () -> {
                   log.warn("No response from device {}, connection may be unstable", deviceId);
@@ -164,135 +169,166 @@ public class HvacDeviceService {
 
   /** Ensure device connection is healthy before performing operations */
   private CompletableFuture<HvacClient> ensureHealthyConnection(String deviceId) {
-    return CompletableFuture.supplyAsync(() -> {
-      try {
-        HvacClient client = connectedClients.get(deviceId);
-        if (client == null) {
-          throw new HvacDeviceException("Device " + deviceId + " is not connected");
-        }
-        
-        // Check if client is still connected
-        if (!client.isConnected()) {
-          log.info("Device {} connection lost, attempting to reconnect", deviceId);
-          
-          int attempts = 0;
-          while (attempts < MAX_RECONNECT_RETRIES) {
-            try {
-              // Try to reconnect
-              client.connect().get();
-              
-              // Wait for the connection to stabilize
-              Thread.sleep(CONNECTION_STABILIZATION_DELAY_MS);
-              
-              if (client.isConnected()) {
-                log.info("Successfully reconnected to device {}", deviceId);
-                return client;
-              }
-            } catch (Exception e) {
-              log.warn("Reconnection attempt {} failed for device {}: {}", 
-                      attempts + 1, deviceId, e.getMessage());
+    return CompletableFuture.supplyAsync(
+        () -> {
+          try {
+            HvacClient client = connectedClients.get(deviceId);
+            if (client == null) {
+              throw new HvacDeviceException("Device " + deviceId + " is not connected");
             }
-            
-            attempts++;
-            if (attempts < MAX_RECONNECT_RETRIES) {
-              try {
-                Thread.sleep(RECONNECT_DELAY_MS * attempts); // Exponential backoff
-              } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                throw new HvacDeviceException("Connection health check interrupted", ie);
+
+            // Check if client is still connected
+            if (!client.isConnected()) {
+              log.info("Device {} connection lost, attempting to reconnect", deviceId);
+
+              int attempts = 0;
+              while (attempts < MAX_RECONNECT_RETRIES) {
+                try {
+                  // Try to reconnect
+                  client.connect().get();
+
+                  // Wait for the connection to stabilize
+                  Thread.sleep(CONNECTION_STABILIZATION_DELAY_MS);
+
+                  if (client.isConnected()) {
+                    log.info("Successfully reconnected to device {}", deviceId);
+                    return client;
+                  }
+                } catch (Exception e) {
+                  log.warn(
+                      "Reconnection attempt {} failed for device {}: {}",
+                      attempts + 1,
+                      deviceId,
+                      e.getMessage());
+                }
+
+                attempts++;
+                if (attempts < MAX_RECONNECT_RETRIES) {
+                  try {
+                    Thread.sleep(RECONNECT_DELAY_MS * attempts); // Exponential backoff
+                  } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new HvacDeviceException("Connection health check interrupted", ie);
+                  }
+                }
               }
+
+              throw new HvacDeviceException(
+                  "Failed to reconnect to device "
+                      + deviceId
+                      + " after "
+                      + MAX_RECONNECT_RETRIES
+                      + " attempts");
             }
+
+            return client;
+
+          } catch (Exception e) {
+            log.error(
+                "Failed to ensure healthy connection for device {}: {}", deviceId, e.getMessage());
+            throw new HvacDeviceException("Connection health check failed: " + e.getMessage(), e);
           }
-          
-          throw new HvacDeviceException("Failed to reconnect to device " + deviceId + " after " + MAX_RECONNECT_RETRIES + " attempts");
-        }
-        
-        return client;
-        
-      } catch (Exception e) {
-        log.error("Failed to ensure healthy connection for device {}: {}", deviceId, e.getMessage());
-        throw new HvacDeviceException("Connection health check failed: " + e.getMessage(), e);
-      }
-    });
+        });
   }
 
   /** Check if status has meaningful data */
   private boolean isStatusValid(DeviceStatus status) {
-    return status != null && 
-           (status.getPower() != null || 
-            status.getTemperature() != null || 
-            status.getMode() != null ||
-            status.getCurrentTemperature() != null);
+    return status != null
+        && (status.getPower() != null
+            || status.getTemperature() != null
+            || status.getMode() != null
+            || status.getCurrentTemperature() != null);
   }
 
   /** Get current status of a device with robust retry logic and connection health checks */
   public CompletableFuture<DeviceStatusDto> getDeviceStatus(String deviceId) {
     return ensureHealthyConnection(deviceId)
-        .thenCompose(client -> CompletableFuture.supplyAsync(() -> {
-          int attempt = 0;
-          Exception lastException = null;
-          
-          while (attempt < MAX_STATUS_RETRIES) {
-            try {
-              log.debug("Getting status for device {} (attempt {})", deviceId, attempt + 1);
-              
-              DeviceStatus status = client.getStatus();
-              
-              if (isStatusValid(status)) {
-                log.debug("Successfully retrieved valid status for device {} on attempt {}", deviceId, attempt + 1);
-                return convertToApiDto(status);
-              }
-              
-              log.warn("Received invalid/empty status for device {}, attempt {}", deviceId, attempt + 1);
-              
-            } catch (Exception e) {
-              lastException = e;
-              log.warn("Status request failed for device {} (attempt {}): {}", 
-                      deviceId, attempt + 1, e.getMessage());
-            }
-            
-            attempt++;
-            
-            if (attempt < MAX_STATUS_RETRIES) {
-              try {
-                // Exponential backoff with jitter
-                long delay = RETRY_DELAY_MS * (1L << (attempt - 1)) + (long) (Math.random() * 100);
-                Thread.sleep(delay);
-              } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                throw new HvacDeviceException("Status request interrupted", ie);
-              }
-            }
-          }
-          
-          // If all attempts failed, throw the last exception
-          String errorMessage = "Failed to get device status after " + MAX_STATUS_RETRIES + " attempts";
-          if (lastException != null) {
-            throw new HvacDeviceException(errorMessage + ": " + lastException.getMessage(), lastException);
-          } else {
-            throw new HvacDeviceException(errorMessage + ": Invalid status received");
-          }
-        }));
+        .thenCompose(
+            client ->
+                CompletableFuture.supplyAsync(
+                    () -> {
+                      int attempt = 0;
+                      Exception lastException = null;
+
+                      while (attempt < MAX_STATUS_RETRIES) {
+                        try {
+                          log.debug(
+                              "Getting status for device {} (attempt {})", deviceId, attempt + 1);
+
+                          DeviceStatus status = client.getStatus();
+
+                          if (isStatusValid(status)) {
+                            log.debug(
+                                "Successfully retrieved valid status for device {} on attempt {}",
+                                deviceId,
+                                attempt + 1);
+                            return convertToApiDto(status);
+                          }
+
+                          log.warn(
+                              "Received invalid/empty status for device {}, attempt {}",
+                              deviceId,
+                              attempt + 1);
+
+                        } catch (Exception e) {
+                          lastException = e;
+                          log.warn(
+                              "Status request failed for device {} (attempt {}): {}",
+                              deviceId,
+                              attempt + 1,
+                              e.getMessage());
+                        }
+
+                        attempt++;
+
+                        if (attempt < MAX_STATUS_RETRIES) {
+                          try {
+                            // Exponential backoff with jitter
+                            long delay =
+                                RETRY_DELAY_MS * (1L << (attempt - 1))
+                                    + (long) (Math.random() * 100);
+                            Thread.sleep(delay);
+                          } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            throw new HvacDeviceException("Status request interrupted", ie);
+                          }
+                        }
+                      }
+
+                      // If all attempts failed, throw the last exception
+                      String errorMessage =
+                          "Failed to get device status after " + MAX_STATUS_RETRIES + " attempts";
+                      if (lastException != null) {
+                        throw new HvacDeviceException(
+                            errorMessage + ": " + lastException.getMessage(), lastException);
+                      } else {
+                        throw new HvacDeviceException(errorMessage + ": Invalid status received");
+                      }
+                    }));
   }
 
   /** Control device properties with connection health check */
   public CompletableFuture<Boolean> controlDevice(String deviceId, DeviceControlDto controlDto) {
     return ensureHealthyConnection(deviceId)
-        .thenCompose(client -> CompletableFuture.supplyAsync(() -> {
-          try {
-            log.info("Controlling device {}: {}", deviceId, controlDto);
+        .thenCompose(
+            client ->
+                CompletableFuture.supplyAsync(
+                    () -> {
+                      try {
+                        log.info("Controlling device {}: {}", deviceId, controlDto);
 
-            DeviceControl control = convertFromApiDto(controlDto);
-            client.control(control).get();
+                        DeviceControl control = convertFromApiDto(controlDto);
+                        client.control(control).get();
 
-            log.info("Successfully controlled device: {}", deviceId);
-            return true;
+                        log.info("Successfully controlled device: {}", deviceId);
+                        return true;
 
-          } catch (Exception e) {
-            log.error("Failed to control device {}: {}", deviceId, e.getMessage());
-            throw new HvacDeviceException("Failed to control device: " + e.getMessage(), e);
-          }
-        }));
+                      } catch (Exception e) {
+                        log.error("Failed to control device {}: {}", deviceId, e.getMessage());
+                        throw new HvacDeviceException(
+                            "Failed to control device: " + e.getMessage(), e);
+                      }
+                    }));
   }
 
   /** Cleanup - disconnect all devices */
