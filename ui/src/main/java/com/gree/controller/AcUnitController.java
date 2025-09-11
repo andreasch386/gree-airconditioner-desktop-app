@@ -16,12 +16,14 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-@Slf4j
 public class AcUnitController {
+
+    private static final Logger log = LoggerFactory.getLogger(AcUnitController.class);
 
     Config config;
 
@@ -233,8 +235,14 @@ public class AcUnitController {
                     case "low":
                         fanLow.setSelected(true);
                         break;
+                    case "mediumlow":
+                        fanMediumLow.setSelected(true);
+                        break;
                     case "medium":
                         fanMedium.setSelected(true);
+                        break;
+                    case "midiumhigh":
+                        fanMediumHigh.setSelected(true);
                         break;
                     case "high":
                         fanHigh.setSelected(true);

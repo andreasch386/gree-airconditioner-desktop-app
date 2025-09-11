@@ -5,7 +5,8 @@ import com.gree.airconditioner.dto.api.ApiResponse;
 import com.gree.airconditioner.dto.api.DeviceInfoDto;
 import com.gree.airconditioner.dto.api.DeviceStatusDto;
 import com.gree.service.DeviceStatusUpdateService;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +17,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 @Component
-@Slf4j
 public class GetDevicesAssist {
 
+    private static final Logger log = LoggerFactory.getLogger(GetDevicesAssist.class);
+    
     private final GreeDeviceController greeDeviceController;
     private final DeviceStatusUpdateService statusUpdateService;
 

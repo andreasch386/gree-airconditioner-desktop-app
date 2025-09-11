@@ -3,7 +3,8 @@ package com.gree.service;
 import com.gree.airconditioner.dto.api.DeviceStatusDto;
 import com.gree.controller.AcUnitController;
 import javafx.application.Platform;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -11,8 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @Service
-@Slf4j
 public class DeviceStatusUpdateService {
+
+    private static final Logger log = LoggerFactory.getLogger(DeviceStatusUpdateService.class);
 
     // Map of device IP/ID to their UI controllers
     private final Map<String, AcUnitController> deviceControllers = new ConcurrentHashMap<>();
